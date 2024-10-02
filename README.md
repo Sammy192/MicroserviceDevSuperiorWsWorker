@@ -1,56 +1,151 @@
-![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+# Criando e testando containers Docker
 
- # Projeto de um sistema de microsserviços Java com Spring Boot e Spring Cloud.
+## Criar rede docker para sistema hr
+```
+docker network create hr-net
+```
 
-- Desenvolvido nas versões: JAVA 11 E SPRING BOOT 2.3.4
+## Testando perfil dev com Postgresql no Docker
+```
+docker pull postgres:12-alpine
 
-## Recursos do projeto
-[Encontre aqui](https://github.com/acenelio/ms-course)
+docker run -p 5432:5432 --name hr-worker-pg12 --network hr-net -e POSTGRES_PASSWORD=1234567 -e POSTGRES_DB=db_hr_worker postgres:12-alpine
 
-Collection do Postman pode ser encontrado no link acima e dentro da pasta do projeto.
-  
-Os conteúdos do curso incluem:
+docker run -p 5432:5432 --name hr-user-pg12 --network hr-net -e POSTGRES_PASSWORD=1234567 -e POSTGRES_DB=db_hr_user postgres:12-alpine
+```
 
-- Feign para requisições de API entre microsserviços
-- Ribbon para balanceamento de carga
-- Servidor Eureka para registro dos microsserviços
-- API Gateway Zuul para roteamento e autorização
-- Hystrix para tolerância a falhas
-- OAuth e JWT para autenticação e autorização
-- Servidor de configuração centralizada com dados em repositório Git
-- Geração de containers Docker para os microsserviços e bases de dados
+## hr-config-server
+```
+FROM openjdk:11
+VOLUME /tmp
+EXPOSE 8888
+ADD ./target/hr-config-server-0.0.1-SNAPSHOT.jar hr-config-server.jar
+ENTRYPOINT ["java","-jar","/hr-config-server.jar"]
+``` 
+```
+mvnw clean package
 
-Ferramentas utilizadas:
+docker build -t hr-config-server:v1 .
 
-- Feign para requisições de API entre microsserviços
-- Servidor Eureka para registro dos microsserviços
-- API Gateway Zuul para roteamento e autorização
-- Hystrix para tolerância a falhas
-- Actuator para atualizar configurações em runtime
-- OAuth e JWT para autenticação e autorização
-- Servidor de configuração centralizada com dados em repositório Git
-- Geração de containers Docker para os microsserviços e bases de dados
+docker run -p 8888:8888 --name hr-config-server --network hr-net -e GITHUB_USER=acenelio -e GITHUB_PASS= hr-config-server:v1
+```
 
-## Visão geral do sistema
+## hr-eureka-server
+```
+FROM openjdk:11
+VOLUME /tmp
+EXPOSE 8761
+ADD ./target/hr-eureka-server-0.0.1-SNAPSHOT.jar hr-eureka-server.jar
+ENTRYPOINT ["java","-jar","/hr-eureka-server.jar"]
+``` 
+```
+mvnw clean package
 
-![image](https://github.com/user-attachments/assets/2d7fb4e6-26fd-4190-ae3e-acb400c05fe1)
+docker build -t hr-eureka-server:v1 .
 
-## Modelo Conceitual
+docker run -p 8761:8761 --name hr-eureka-server --network hr-net hr-eureka-server:v1
+```
 
-![image](https://github.com/user-attachments/assets/3a5426dc-b487-4f87-9fd4-e319fa122721)
+## hr-worker
+```
+FROM openjdk:11
+VOLUME /tmp
+ADD ./target/hr-worker-0.0.1-SNAPSHOT.jar hr-worker.jar
+ENTRYPOINT ["java","-jar","/hr-worker.jar"]
+``` 
+```
+mvnw clean package -DskipTests
 
-## Checklist baixar e executar projeto pronto
+docker build -t hr-worker:v1 .
 
-- JDK 11, variáveis PATH e JAVA_HOME
-- Configurar IDE para pegar Java 11
-- Importar projetos na IDE
-- Configurar credenciais do config server
-- Modelo do curso: [PropiedadesModelo](https://github.com/acenelio/ms-course-configs)
-- Preparar Postman (collection e environment)
-- Subir projetos em ordem:
-- Config server
-- Eureka server
-- Outros
+docker run -P --network hr-net hr-worker:v1
+```
 
+## hr-user
+```
+FROM openjdk:11
+VOLUME /tmp
+ADD ./target/hr-user-0.0.1-SNAPSHOT.jar hr-user.jar
+ENTRYPOINT ["java","-jar","/hr-user.jar"]
+``` 
+```
+mvnw clean package -DskipTests
+
+docker build -t hr-user:v1 .
+
+docker run -P --network hr-net hr-user:v1
+```
+
+## hr-payroll
+```
+FROM openjdk:11
+VOLUME /tmp
+ADD ./target/hr-payroll-0.0.1-SNAPSHOT.jar hr-payroll.jar
+ENTRYPOINT ["java","-jar","/hr-payroll.jar"]
+``` 
+```
+mvnw clean package -DskipTests
+
+docker build -t hr-payroll:v1 .
+
+docker run -P --network hr-net hr-payroll:v1
+```
+
+## hr-oauth
+```
+FROM openjdk:11
+VOLUME /tmp
+ADD ./target/hr-oauth-0.0.1-SNAPSHOT.jar hr-oauth.jar
+ENTRYPOINT ["java","-jar","/hr-oauth.jar"]
+``` 
+```
+mvnw clean package -DskipTests
+
+docker build -t hr-oauth:v1 .
+
+docker run -P --network hr-net hr-oauth:v1
+```
+
+## hr-api-gateway-zuul
+```
+FROM openjdk:11
+VOLUME /tmp
+EXPOSE 8765
+ADD ./target/hr-api-gateway-zuul-0.0.1-SNAPSHOT.jar hr-api-gateway-zuul.jar
+ENTRYPOINT ["java","-jar","/hr-api-gateway-zuul.jar"]
+``` 
+```
+mvnw clean package -DskipTests
+
+docker build -t hr-api-gateway-zuul:v1 .
+
+docker run -p 8765:8765 --name hr-api-gateway-zuul --network hr-net hr-api-gateway-zuul:v1
+```
+
+## Alguns comandos Docker
+Criar uma rede Docker
+```
+docker network create <nome-da-rede>
+```
+Baixar imagem do Dockerhub
+```
+docker pull <nome-da-imagem:tag>
+```
+Ver imagens
+```
+docker images
+```
+Criar/rodar um container de uma imagem
+```
+docker run -p <porta-externa>:<porta-interna> --name <nome-do-container> --network <nome-da-rede> <nome-da-imagem:tag> 
+```
+Listar containers
+```
+docker ps
+
+docker ps -a
+```
+Acompanhar logs do container em execução
+```
+docker logs -f <container-id>
+```
