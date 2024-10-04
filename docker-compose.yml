@@ -1,0 +1,174 @@
+version: "3.7"
+services:
+  # ====================================================================================================================
+  # POSTGRES SERVER HR-WORKER
+  # ====================================================================================================================
+  pg-docker-hr-worker:
+    image: postgres:12-alpine
+    container_name: hr-worker-pg12
+    environment:
+      POSTGRES_DB: db_hr_worker
+      POSTGRES_PASSWORD: 1234567
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.data/postgresqlhrworker/data:/var/lib/postgresqlhrworker/data
+    depends_on:
+      - docker-hr-eureka-server
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # POSTGRES SERVER HR-USER
+  # ====================================================================================================================      
+  pg-docker-hr-user:
+    image: postgres:12-alpine
+    container_name: hr-user-pg12
+    environment:
+      POSTGRES_DB: db_hr_user
+      POSTGRES_PASSWORD: 1234567
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5433:5432
+    volumes:
+      - ./.data/postgresqlhruser/data:/var/lib/postgresqlhruser/data
+    depends_on:
+      - docker-hr-eureka-server
+    networks:
+      - hr-net
+
+  # ====================================================================================================================
+  # HR-CONFIG SERVER
+  # ====================================================================================================================      
+  docker-hr-config-server:
+    image: hr-config-server:v1
+    build:
+      context: ./hr-config-server
+      dockerfile: Dockerfile
+    container_name: hr-config-server
+    environment:
+      GITHUB_USER: ${GITHUB_USER}
+      GITHUB_PASS: ${GITHUB_PASS}
+    ports:
+      - 8888:8888
+    volumes:
+      - ./.data/hrconfigserver/data:/var/lib/hrconfigserver/data
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-EUREKA-SERVER
+  # ====================================================================================================================      
+  docker-hr-eureka-server:
+    image: hr-eureka-server:v1
+    build:
+      context: ./hr-eureka-server
+      dockerfile: Dockerfile
+    container_name: hr-eureka-server          
+    ports:
+      - 8761:8761
+    volumes:
+      - ./.data/hreurekaserver/data:/var/lib/hreurekaserver/data
+    depends_on:
+      - docker-hr-config-server    
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-WORKER
+  # ====================================================================================================================      
+  docker-hr-worker:
+    image: hr-worker:v1
+    build:
+      context: ./hr-worker
+      dockerfile: Dockerfile
+    container_name: hr-worker
+    volumes:
+      - ./.data/hrworker/data:/var/lib/hrworker/data
+    depends_on:
+      - docker-hr-eureka-server    
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-USER
+  # ====================================================================================================================      
+  docker-hr-user:
+    image: hr-user:v1
+    build:
+      context: ./hr-user
+      dockerfile: Dockerfile
+    container_name: hr-user
+    volumes:
+      - ./.data/hruser/data:/var/lib/hruser/data
+    depends_on:
+      - docker-hr-eureka-server    
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-PAYROLL
+  # ====================================================================================================================      
+  docker-hr-payroll:
+    image: hr-payroll:v1
+    build:
+      context: ./hr-payroll
+      dockerfile: Dockerfile
+    container_name: hr-payroll
+    volumes:
+      - ./.data/hrpayroll/data:/var/lib/hrpayroll/data
+    depends_on:
+      - docker-hr-eureka-server    
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-OAUTH
+  # ====================================================================================================================      
+  docker-hr-oauth:
+    image: hr-oauth:v1
+    build:
+      context: ./hr-oauth
+      dockerfile: Dockerfile
+    container_name: hr-oauth
+    volumes:
+      - ./.data/hroauth/data:/var/lib/hroauth/data
+    depends_on:
+      - docker-hr-eureka-server    
+    networks:
+      - hr-net
+  # ====================================================================================================================
+  # HR-API-GATEWAY-ZUUL
+  # ====================================================================================================================      
+  docker-hr-api-gateway-zuul:
+    image: hr-api-gateway-zuul:v1
+    build:
+      context: ./hr-api-gateway-zull
+      dockerfile: Dockerfile
+    container_name: hr-api-gateway-zuul          
+    ports:
+      - 8765:8765
+    volumes:
+      - ./.data/hrapigatewayzuul/data:/var/lib/hrapigatewayzuul/data
+    depends_on:
+      - docker-hr-config-server    
+    networks:
+      - hr-net      
+  # ====================================================================================================================
+  # PGADMIN
+  # ====================================================================================================================
+  pgadmin-docker:
+    image: dpage/pgadmin4
+    container_name: ms-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: me@example.com
+      PGADMIN_DEFAULT_PASSWORD: 1234567
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5050:80
+    volumes:
+      - ./.data/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - pg-docker-hr-worker
+    networks:
+      - hr-net
+# ======================================================================================================================
+# REDE
+# ======================================================================================================================
+networks:
+  hr-net:
+    driver: bridge
