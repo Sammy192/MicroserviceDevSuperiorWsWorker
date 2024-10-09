@@ -1,3 +1,8 @@
+# Estrutura do projeto em Containers:
+
+![image](https://github.com/user-attachments/assets/d73f399d-e086-4738-87d8-85e07fbd1f92)
+
+
 # Projeto para subir em Docker
 
 Esta branch tem por objetivo guardar o projeto na versão para executar com o Docker.
