@@ -6,6 +6,9 @@
 
 - Desenvolvido nas versões: JAVA 11 E SPRING BOOT 2.3.4
 
+ # Projeto dispoível para Docker:
+ Acesse a branch 'Docker' ali encontrará instruções:
+
 ## Recursos do projeto
 [Encontre aqui](https://github.com/acenelio/ms-course)
 
