@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # ====================================================================================================================
   # HR-CONFIG SERVER
@@ -46,9 +44,10 @@ services:
   docker-hr-api-gateway-zuul:
     image: hr-api-gateway-zuul:v1
     build:
-      context: ./hr-api-gateway-zull
+      context: ./hr-api-gateway-zuul
       dockerfile: Dockerfile
-    container_name: hr-api-gateway-zuul          
+    container_name: hr-api-gateway-zuul   
+    restart: unless-stopped    
     ports:
       - 8765:8765
     volumes:
@@ -126,6 +125,7 @@ services:
       context: ./hr-oauth
       dockerfile: Dockerfile
     container_name: hr-oauth
+    restart: unless-stopped   
     volumes:
       - ./.data/hroauth/data:/var/lib/hroauth/data
     depends_on:
