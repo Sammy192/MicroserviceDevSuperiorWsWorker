@@ -31,6 +31,23 @@ Tais var de ambientes são utilizadas pelo projeto 'hr-config-server' como confi
 Projeto na versão Java 11;
 E SPRING BOOT 2.3.4;
 
+## Iniciar primeira vez:
+
+Antes de iniciar o projeto é preciso realizar o build dos projetos para que seja criado a pasta target de cada projeto:
+
+Na pasta raiz na qual contém os projetos abra um git bash e execute:
+```
+./build_all.bat
+```
+Deverá produzir um resultado final como na imagem:
+
+
+Depois iremos somente criar os containers com este comando, porém sem inicia-los:
+```
+docker-compose up --build --no-start
+```
+
+
 Inicie os containers dockers nesta ordem aguardando a completa inicialização de cada um antes de iniciar o próximo.
 obs: nesse momento objetivo não esta em configurar os containers para serem auto executáveis, por isso essa ordem.
 
@@ -39,6 +56,16 @@ obs: nesse momento objetivo não esta em configurar os containers para serem aut
 2 - hr-user-pg12
 
 3 - ms-pgadmin
+
+Necessário neste momento criar os servers  dentro do PgAdmin como demonstrado na imagem:
+
+Imagem de config da estrutura de banco no PgAdmin:
+Acesso PgAdmin configurado no docker-compose.yml -> localhost:5050
+
+![image](https://github.com/user-attachments/assets/a2d26e81-8935-4c20-a727-738239436e9f)
+
+
+Depois poderá iniciar os demais containers nesta ordem:
 
 4 - hr-config-server
 
@@ -55,10 +82,15 @@ obs: nesse momento objetivo não esta em configurar os containers para serem aut
 10 - hr-payroll
 
 
+![image](https://github.com/user-attachments/assets/a374b36d-6d54-4032-8371-680aabfadb0a)
+
+![image](https://github.com/user-attachments/assets/cb944c35-ae3c-4ab4-b42f-8c86a8c4fd4b)
 
 
-## Após iniciar pela primeira vez criar a estrutura de banco: 
-( se necessário faça os inserts também, porém existindo as tabelas, o projeto ao ser iniciado faz os inserts através do data.sql)
+Tendo realizado estes processos poderá executar as requisições de login por exemplo no Postman.
+
+### Caso necessário:
+
 Scrips disponíveis no projeto no arquivo create.sql e os inserts no data.sql
 
 ### No banco: db_hr_user
@@ -95,16 +127,4 @@ INSERT INTO tb_worker (name, daily_Income) VALUES ('Maria', 300.0);
 INSERT INTO tb_worker (name, daily_Income) VALUES ('Alex', 250.0);
 ```
 
-Imagem de config da estrutura de banco no PgAdmin:
-Acesso PgAdmin configurado no docker-compose.yml -> localhost:5050
-
-![image](https://github.com/user-attachments/assets/a2d26e81-8935-4c20-a727-738239436e9f)
-
 ![image](https://github.com/user-attachments/assets/cfbe8e91-8e35-4688-88bd-4f8ff8e3157c)
-
-![image](https://github.com/user-attachments/assets/a374b36d-6d54-4032-8371-680aabfadb0a)
-
-![image](https://github.com/user-attachments/assets/cb944c35-ae3c-4ab4-b42f-8c86a8c4fd4b)
-
-
-Tendo realizado estes processos poderá executar as requisições de login por exemplo no Postman.
