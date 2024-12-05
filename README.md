@@ -43,30 +43,21 @@ Deverá produzir um resultado final como na imagem:
 ![image](https://github.com/user-attachments/assets/95522c7a-a7cc-46c2-a6dc-d33bce15cf8b)
 
 
-Depois iremos somente criar os containers com este comando, porém sem inicia-los:
+Depois iremos iniciar os containers com este comando:
 ```
-docker-compose up --build --no-start
+docker-compose up
 ```
+Aguarde uns 5min para estabilizar as conexões entre os microserviços e pode testar no Postman.
+-----------------------------------------------------
 
-
+Caso tenha problemas ao iniciar os containers, pare todos e inicie nesta ordem:
 Inicie os containers dockers nesta ordem aguardando a completa inicialização de cada um antes de iniciar o próximo.
-obs: nesse momento objetivo não esta em configurar os containers para serem auto executáveis, por isso essa ordem.
 
 1 - hr-worker-pg12
 
 2 - hr-user-pg12
 
 3 - ms-pgadmin
-
-Necessário neste momento criar os servers  dentro do PgAdmin como demonstrado na imagem:
-
-Imagem de config da estrutura de banco no PgAdmin:
-Acesso PgAdmin configurado no docker-compose.yml -> localhost:5050
-
-![image](https://github.com/user-attachments/assets/a2d26e81-8935-4c20-a727-738239436e9f)
-
-
-Depois poderá iniciar os demais containers nesta ordem:
 
 4 - hr-config-server
 
@@ -82,6 +73,13 @@ Depois poderá iniciar os demais containers nesta ordem:
 
 10 - hr-payroll
 
+
+Se necessário verificar os bancos criados,  neste momento pode criar os servers  dentro do PgAdmin como demonstrado na imagem:
+
+Imagem de config da estrutura de banco no PgAdmin:
+Acesso PgAdmin configurado no docker-compose.yml -> localhost:5050
+
+![image](https://github.com/user-attachments/assets/a2d26e81-8935-4c20-a727-738239436e9f)
 
 ![image](https://github.com/user-attachments/assets/a374b36d-6d54-4032-8371-680aabfadb0a)
 
