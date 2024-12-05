@@ -40,6 +40,7 @@ Na pasta raiz na qual contém os projetos abra um git bash e execute:
 ./build_all.bat
 ```
 Deverá produzir um resultado final como na imagem:
+![image](https://github.com/user-attachments/assets/95522c7a-a7cc-46c2-a6dc-d33bce15cf8b)
 
 
 Depois iremos somente criar os containers com este comando, porém sem inicia-los:
